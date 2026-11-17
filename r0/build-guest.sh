@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Build a guest (spend, the default, chain or hp) and commit it, in two
+# Build the hub's statement guest (hp, the only one) and commit it, in two
 # steps:
 #
 #   r0/build-guest.sh elf [g]   on x86_64 Linux (RISC Zero's pinned builder
@@ -11,17 +11,13 @@
 #                               and <g>.id
 #
 # Commit <g>.bin and <g>.id (not the ELF), and record the build in
-# r0/guests/README.md. The chain guest holds the spend guest's image id,
-# the hub's statement guest (hp) the chain guest's: rebuild each after the
-# one it holds.
+# r0/guests/README.md.
 set -euo pipefail
 cd "$(dirname "$0")/.."
-g="${2:-spend}"
+g="${2:-hp}"
 case "$g" in
-spend) dir=r0/guest ;;
-chain) dir=r0/chain-guest ;;
 hp) dir=r0/hp-guest ;;
-*) echo "no guest $g (spend, chain, hp)" >&2; exit 2 ;;
+*) echo "no guest $g (hp)" >&2; exit 2 ;;
 esac
 case "${1:-}" in
 elf)
@@ -45,7 +41,7 @@ pack)
     docker build -f r0/Dockerfile -t glichen-r0 .
     ;;
 *)
-    echo "usage: $0 elf|pack [spend|chain|hp]" >&2
+    echo "usage: $0 elf|pack [hp]" >&2
     exit 2
     ;;
 esac

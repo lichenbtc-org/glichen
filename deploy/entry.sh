@@ -1,15 +1,7 @@
 #!/bin/sh
 # The image's roles (deploy/docker-compose.yml):
 #   key           make the hub's keys (in /hub) if needed, and print its
-#                 L2 key: the key that mints, and the sequencer's issuer
-#   sequencer     the L2's sequencer (its key and ledger in /seq), the hub's
-#                 key its issuer; unless ANCHOR=off, anchoring its history
-#                 through NETWORK's node (its cookie in /bitcoind), paid
-#                 from the node's wallet ANCHOR_WALLET. A new ledger's
-#                 genesis seal is paid first, so it waits for that wallet
-#                 to be funded, and logs an address to pay
-#   chain-prover  prove each height the sequencer seals, in order
-#                 (r0/chain-prover.sh), with glichen-r0
+#                 L2 key: the issuer's, which signs every note
 #   hub           the hub, on NETWORK's node (its wallet HUB_WALLET, `hub`
 #                 by default), keeping the grants L2's notes in its book
 #                 (/hub/book.json): no sequencer
@@ -37,36 +29,6 @@ rpc() {
 case "${1:-}" in
     key)
         exec glichen-hub --dir /hub --print-key
-        ;;
-    sequencer)
-        issuer="$(glichen-hub --dir /hub --print-key)"
-        set -- --listen 0.0.0.0:18300 --ledger /seq/ledger.json --key /seq/sequencer.key \
-            --issuer "$issuer" --seal-every "${SEAL_EVERY:-5}"
-        [ "${ANCHOR:-on}" = off ] && exec lichen-sequencer "$@"
-        wait_node
-        wallet="${ANCHOR_WALLET:-sequencer}"
-        if [ ! -f /seq/ledger.json ]; then
-            # a new ledger: its genesis seal is paid from the wallet
-            rpc / loadwallet "[\"$wallet\"]" >/dev/null
-            rpc / createwallet "[\"$wallet\"]" >/dev/null
-            addr=
-            until rpc "/wallet/$wallet" getbalance '["*",0]' | grep -q '"result":[0-9.]*[1-9]'; do
-                [ -n "$addr" ] || addr="$(rpc "/wallet/$wallet" getnewaddress '[]' | sed 's/.*"result":"\([^"]*\)".*/\1/')"
-                echo "waiting for the sequencer's wallet ($wallet) to be funded, for its genesis seal and anchors: pay $addr"
-                sleep 10
-            done
-        fi
-        # an anchor is recorded the margin deep, so an acknowledgment, which
-        # names a recorded anchor, can't be sequenced sooner
-        # (agent notes: docs/HUB_PROVES_PLAN.md, "Data availability")
-        case "$NETWORK" in mutinynet) margin=20 ;; *) margin=6 ;; esac
-        exec lichen-sequencer "$@" --network "$NETWORK" --anchor-rpc "$node" --anchor-cookie "$cookie" \
-            --anchor-wallet "$wallet" --anchor-confirmations "${ANCHOR_CONFIRMATIONS:-$margin}" --anchor-feerate "${ANCHOR_FEERATE:-2}"
-        ;;
-    chain-prover)
-        blocks=/seq/ledger.json.blocks
-        until [ -d "$blocks" ]; do echo "waiting for the sequencer's first block"; sleep 5; done
-        LICHEN_R0=/usr/local/bin/glichen-r0 exec lichen-chain-prover "$blocks"
         ;;
     hub)
         wait_node

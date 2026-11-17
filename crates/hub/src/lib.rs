@@ -299,7 +299,7 @@ impl HubL2 for Grants {
         let k: AliceKeys = serde_json::from_value(keys.clone()).context("the user's one-time keys")?;
         glichen_proto::setup_journal(cid, setup.unit, &setup_terms(&setup.l2)?, &k)
     }
-    fn open_keys(&self, ctx: &dyn Ctx, setup: &HpSetup, keys: &serde_json::Value, req: &OpenRequest) -> Result<(serde_json::Value, serde_json::Value)> {
+    fn open_keys(&self, ctx: &dyn Ctx, setup: &HpSetup, keys: &serde_json::Value, req: &OpenRequest, _t_close: u32) -> Result<(serde_json::Value, serde_json::Value)> {
         let t = setup_terms(&setup.l2)?;
         let v0 = req.deposit - req.fee;
         ensure!(t.owner == req.l2_address && t.v0 == v0, "the setup is for another owner or mint than the opening's");

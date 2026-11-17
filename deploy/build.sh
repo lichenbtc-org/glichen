@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Build the deployment's two images from committed sources
 # (deploy/context.sh):
-#   deploy/build.sh            (in a lichen checkout)
+#   deploy/build.sh            (in a glichen checkout)
 # - lichen (LICHEN_IMAGE, lichen:latest by default): the hub, the
-#   sequencer, the chain prover, the wallet;
+#   wallet, the prover;
 # - lichen-bitcoind: the node for NETWORK (deploy/.env, or ENV_FILE),
 #   from a release tarball checked by SHA-256.
 set -euo pipefail

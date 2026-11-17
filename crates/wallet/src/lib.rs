@@ -84,7 +84,7 @@ impl WalletL2 for Grants {
     fn setup_terms(_w: &Wallet<Self>, _cid: u32, quote: &Quote, owner: &Hash) -> Result<serde_json::Value> {
         Ok(serde_json::to_value(SetupTerms { owner: *owner, v0: quote.minted, issuer: None })?)
     }
-    fn check_setup(w: &Wallet<Self>, setup: &HpSetup, asked: &serde_json::Value) -> Result<()> {
+    fn check_setup(w: &Wallet<Self>, _chain: &Chain, setup: &HpSetup, asked: &serde_json::Value) -> Result<()> {
         let (got, asked): (SetupTerms, SetupTerms) = (serde_json::from_value(setup.l2.clone())?, serde_json::from_value(asked.clone())?);
         ensure!(got.owner == asked.owner && got.v0 == asked.v0, "the setup is for another owner or mint");
         ensure!(got.issuer == Some(w.l2.issuer), "the setup's issuer isn't the deployment's");
