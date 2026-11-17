@@ -13,7 +13,7 @@ per network:
 | `hub` | the book, the contracts, payments, folds and exits; users' wallets talk to it over HTTP ([its API](hub-api.yaml)) |
 | `miner` | regtest only: a block every few seconds |
 
-Users run only the `lichen` wallet, with no node:
+Users run only the `glichen` wallet, with no node:
 [USE_A_WALLET.md](USE_A_WALLET.md).
 
 ## A machine
@@ -39,8 +39,8 @@ deploy/build.sh
 `build.sh` builds two images, from committed sources only: lichen's HEAD
 (and lichen-btc at the commit `Cargo.lock` pins).
 
-- **`lichen`:** the hub, the prover (`lichen-r0`, through
-  `lichen-hp-prover`), and the `lichen` wallet, for the smoke test.
+- **`lichen`:** the hub, the prover (`glichen-r0`, through
+  `glichen-hp-prover`), and the `glichen` wallet, for the smoke test.
 - **`lichen-bitcoind:<network>`:** the node.
   - For regtest, signet and testnet4: stock Bitcoin Core 31.1.
   - For Mutinynet: benthecarman's patched build, the one Mutinynet's
@@ -113,11 +113,11 @@ must be online for payments; it keeps each account's live note and the
 payment that made it, in `book.json`.
 
 **Exits.** A user whose withdrawal the hub won't fold, or whose
-operator has gone, exits (`lichen exit`): she posts a claim of a note.
+operator has gone, exits (`glichen exit`): she posts a claim of a note.
 The hub watches the chain, and within `w_H` (two hours on Mutinynet)
 either lets the claim stand, or posts its correction, citing a later
 payment of hers. If she contests, it must prove the correction within
-`w_H`: in the background (`lichen-hp-prover`: the STARK, then its
+`w_H`: in the background (`glichen-hp-prover`: the STARK, then its
 Groth16 wrap in RISC Zero's prover image on the host's Docker), its
 files in `state/<network>/hub/hp/<contract>/`. The STARK took 179 s on
 a 14-core laptop, and the wrap 264 s on a 4-vCPU x86 server.

@@ -7,7 +7,7 @@ use clap::{Parser, Subcommand};
 use glichen_wallet::{GrantsWallet as Wallet, Payments};
 
 #[derive(Parser)]
-#[command(about = "A lichen wallet")]
+#[command(about = "glichen: a lichen wallet for the grants L2")]
 struct Args {
     /// `regtest`, `mutinynet`, `signet` or `testnet4`.
     #[arg(long, default_value = "regtest")]
@@ -82,7 +82,7 @@ enum Cmd {
         reserve: u64,
         /// Where withdrawals, refunds and the fee budget's rest are paid
         /// (an address of any wallet of yours; by default this wallet's
-        /// own payout address, `lichen payout`).
+        /// own payout address, `glichen payout`).
         #[arg(long)]
         payout: Option<String>,
         /// Finish the opening of this contract with its deposit, already
@@ -195,18 +195,18 @@ fn deadline(a: &Args, t_close: u32, height: Option<u32>) -> String {
 /// The next step when a withdrawal fails: the exit.
 fn exit_note(a: &Args, cid: u32, t_close: u32, height: Option<u32>) -> String {
     format!(
-        "contract {cid}: the withdrawal wasn't folded, so only an exit on Bitcoin gets it out: a claim of your notes, which needs nothing from the hub. You prove nothing: the hub must prove the claim false within its window, or its timeout pays you.\n{}\nWith this command's --network, --wallet and --statement:\n    lichen exit {cid}\nor run this withdrawal again with --escalate.",
+        "contract {cid}: the withdrawal wasn't folded, so only an exit on Bitcoin gets it out: a claim of your notes, which needs nothing from the hub. You prove nothing: the hub must prove the claim false within its window, or its timeout pays you.\n{}\nWith this command's --network, --wallet and --statement:\n    glichen exit {cid}\nor run this withdrawal again with --escalate.",
         deadline(a, t_close, height)
     )
 }
 
-/// `lichen exit`: a contract's exit, played to its end.
+/// `glichen exit`: a contract's exit, played to its end.
 fn exit_cmd(a: &Args, w: &mut Wallet, contract: u32, claim_only: bool, challenge_anyway: bool) -> Result<()> {
     let chain = chain(a)?;
     w.progress = Some(std::sync::Arc::new(|m: String| println!("{m}")));
     if claim_only {
         let p = glichen_wallet::exit::exit_claim(w, &chain, contract)?;
-        println!("contract {contract}: a claim of {} units kept, not posted (`lichen exit {contract}` posts it)", p.b);
+        println!("contract {contract}: a claim of {} units kept, not posted (`glichen exit {contract}` posts it)", p.b);
         return Ok(());
     }
     w.unchecked_claims = challenge_anyway;
@@ -409,10 +409,10 @@ mod tests {
 
     #[test]
     fn exit_note_names_the_exit_the_deadline_and_escalate() {
-        let a = Args::parse_from(["lichen", "--network", "mutinynet", "--statement", "hub-proves-mock", "contracts"]);
+        let a = Args::parse_from(["glichen", "--network", "mutinynet", "--statement", "hub-proves-mock", "contracts"]);
         let n = exit_note(&a, 1007, 3_519_000, Some(3_514_050));
         println!("{n}");
-        assert!(n.contains("lichen exit 1007\n") && n.contains("--escalate") && n.contains("by block 3519000"));
+        assert!(n.contains("glichen exit 1007\n") && n.contains("--escalate") && n.contains("by block 3519000"));
         assert!(n.contains("You prove nothing") && n.contains("its timeout pays you"));
     }
 }

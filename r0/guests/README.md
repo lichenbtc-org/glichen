@@ -1,10 +1,10 @@
 # The committed guests
 
-Each `<g>.bin` is a program the prover (`lichen-r0`) proves and others
+Each `<g>.bin` is a program the prover (`glichen-r0`) proves and others
 verify receipts of: the guest's ELF with RISC Zero's kernel (V1COMPAT),
 built by `../build-guest.sh` in RISC Zero's pinned builder image. `<g>.id`
-is its image id (`lichen-r0 image-id <g>` recomputes it from the file;
-`lichen-r0 check-id` checks both, and the prover image runs it).
+is its image id (`glichen-r0 image-id <g>` recomputes it from the file;
+`glichen-r0 check-id` checks both, and the prover image runs it).
 
 - `spend`: the spend statement of `crates/shielded`. The sequencer checks
   every shielded transaction's receipt against `spend.id`.

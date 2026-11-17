@@ -31,7 +31,7 @@ the claim and her half of the signature). The hub's HTTP API is [hub-api.yaml](h
 | `babe` | | hub and wallet: BABE's cryptography (the garbled circuit, the witness encryption, the cut-and-choose setup over VSSS, the reveal by adaptor signatures), the countersigned graph and its scripts (`countersigned`), its statement (the mock; a RISC Zero receipt's Groth16 form) |
 | `proto` | | wallet and hub: the opening messages, the contract record, the contract's graph (`Built`); the setup exchange and dispute plumbing (`hp`, the cut-and-choose's shared parts in `setup`) |
 | `hub` | `lichen-hub` | the hub: opens contracts, keeps the book, takes part in payments, takes withdrawal claims and folds; corrects exit claims and proves its corrections |
-| `wallet` | `lichen` | the user: accounts and payments (`notes`), the opening (`hp`), `lichen withdraw`, and `lichen exit` (`exit`, `dispute`, `engine`) |
+| `wallet` | `glichen` | the user: accounts and payments (`notes`), the opening (`hp`), `glichen withdraw`, and `glichen exit` (`exit`, `dispute`, `engine`) |
 | `chain` | | each party: its own bitcoind wallet over RPC, or Esplora |
 | `ledger`, `l2` | | from the base design: keys and the deployment's record (`ledger`), the HTTP agents (`l2::http`) |
 
@@ -43,16 +43,16 @@ grants versions', kept but not used by the grants deployment.
 
 A separate workspace, built natively (on a Mac, with Xcode's Metal
 compiler; `--features cuda` for an NVIDIA GPU) or in Docker
-(`r0/Dockerfile`, the image `lichen-r0`). Its Groth16 wrap needs x86
+(`r0/Dockerfile`, the image `glichen-r0`). Its Groth16 wrap needs x86
 Linux (RISC Zero's prover image, on Docker).
 
 | path | what |
 |---|---|
 | `hp-guest/` | the hub's statement guest (`withdraw::accounts::check`) |
 | `guests/` | the committed builds (`<g>.bin`) and image ids (`<g>.id`), and how each was built (its README) |
-| `host/` | `lichen-r0`: proves the hub's guest (`hp`), and wraps it in Groth16 (`hp-proof`) |
+| `host/` | `glichen-r0`: proves the hub's guest (`hp`), and wraps it in Groth16 (`hp-proof`) |
 | `build-guest.sh` | a guest's reproducible build (x86 Linux), then packing it (anywhere) |
-| `hp-prover.sh` | `lichen-r0` in its image (`LICHEN_R0_IMAGE`, `lichen-r0` by default), or itself (`LICHEN_R0`), for the hub |
+| `hp-prover.sh` | `glichen-r0` in its image (`LICHEN_R0_IMAGE`, `glichen-r0` by default), or itself (`LICHEN_R0`), for the hub |
 | `hp-remote.sh` | `hp-prover.sh` on another machine over ssh (`LICHEN_R0_HOST`), for a hub on a Mac |
 
 `guest/` and `chain-guest/` (and `spend-prover.sh`, `chain-prover.sh`)
