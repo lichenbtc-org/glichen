@@ -1,0 +1,15 @@
+[package]
+name = "glichen-statement"
+description = "glichen's statement: a claim owed at most the countersigned correction, and the grants L2's hashes and encodings"
+# self-contained (not inherited from the workspace): the hub's guest
+# builds it alone
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+sha2 = { version = "0.10", default-features = false }
+k256 = { version = "0.13", default-features = false, features = ["schnorr"] }
+
+[dev-dependencies]
+hex = "0.4"

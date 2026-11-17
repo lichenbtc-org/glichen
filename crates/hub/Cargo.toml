@@ -1,0 +1,35 @@
+[package]
+name = "glichen-hub"
+description = "glichen's hub: the grants L2's book and payments, and its part of each lichen contract"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "glichen-hub"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+bitcoin.workspace = true
+clap.workspace = true
+hex.workspace = true
+k256.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+tiny_http.workspace = true
+glichen-statement.workspace = true
+glichen-notes.workspace = true
+glichen-proto.workspace = true
+lichen-btc.workspace = true
+lichen-wots.workspace = true
+lichen-contract.workspace = true
+lichen-babe.workspace = true
+lichen-proto.workspace = true
+lichen-chain.workspace = true
+lichen-hub.workspace = true
+
+[dev-dependencies]
+glichen-wallet.workspace = true
+bitcoincore-rpc.workspace = true
+ureq.workspace = true

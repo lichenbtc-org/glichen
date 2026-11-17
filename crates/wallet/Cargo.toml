@@ -1,0 +1,28 @@
+[package]
+name = "glichen-wallet"
+description = "glichen's wallet: the grants L2's accounts and payments, and its part of each lichen contract"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[[bin]]
+name = "glichen"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+bitcoin.workspace = true
+clap.workspace = true
+hex.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+glichen-statement.workspace = true
+glichen-notes.workspace = true
+glichen-proto.workspace = true
+lichen-btc.workspace = true
+lichen-wots.workspace = true
+lichen-contract.workspace = true
+lichen-babe.workspace = true
+lichen-proto.workspace = true
+lichen-chain.workspace = true
+lichen-wallet.workspace = true

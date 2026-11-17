@@ -1,0 +1,56 @@
+name: CI
+
+# Push to master and every PR: lint and build, then the default test suite
+# (docs/CODE.md, "Tests"): everything that needs nothing outside the tree
+# but bitcoind on regtest. lichen-btc comes by git, at the commit
+# Cargo.lock pins.
+#
+# The Esplora tests (crates/chain/tests/esplora.rs, the hub's deposit test)
+# need Blockstream's electrs: built once at a pinned revision, then cached.
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  BITCOIN_VERSION: "31.0"
+  BITCOIN_SHA256: d3e4c58a35b1d0a97a457462c94f55501ad167c660c245cb1ffa565641c65074
+  ELECTRS_REV: b7ae3356e3a77b33db96129d61a1b70b8113700e
+
+jobs:
+  build:
+    name: Build and clippy
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: debug
+      # Advisory: clippy's warnings do not fail the job.
+      - run: cargo clippy --locked --workspace --all-targets
+      - run: cargo test --locked --workspace --no-run
+
+  test:
+    name: Tests (regtest)
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/bitcoind
+      - id: electrs
+        uses: actions/cache@v4
+        with:
+          path: ~/electrs
+          key: electrs-${{ env.ELECTRS_REV }}
+      - if: steps.electrs.outputs.cache-hit != 'true'
+        run: cargo install --locked --git https://github.com/blockstream/electrs --rev "$ELECTRS_REV" electrs --root ~/electrs
+      - run: echo "LICHEN_ELECTRS=$HOME/electrs/bin/electrs" >> "$GITHUB_ENV"
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: debug
+          save-if: false
+      - run: cargo test --locked --workspace
