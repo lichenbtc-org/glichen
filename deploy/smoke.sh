@@ -32,7 +32,7 @@ until cli -rpcwallet=hub getbalance >/dev/null 2>&1; do sleep 2; done
 cli -rpcwallet=hub getbalance
 
 echo "== the hub answers"
-until [ "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${HUB_PORT:-18310}/" || true)" != 000 ]; do sleep 2; done
+until [ "$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${HUB_PORT:-18320}/" || true)" != 000 ]; do sleep 2; done
 
 echo "== a wallet, pinned to the deployment"
 wallet init

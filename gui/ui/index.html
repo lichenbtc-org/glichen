@@ -615,7 +615,7 @@ function render() {
   show('payoutcard', !!s.wallet && !!snap.payout_address);
   if (snap.payout_address) { $('poaddr').textContent = snap.payout_address; $('pobal').textContent = snap.payout_balance != null ? `${sats(snap.payout_balance)} sats` : '—'; }
   $('backupbtn').disabled = !s.wallet;
-  const ver = s.version ? `<dt>this app</dt><dd>lichen grants ${esc(s.version.app)} <span class="note mono">glichen ${esc(s.version.lichen)}</span></dd>` : '';
+  const ver = s.version ? `<dt>this app</dt><dd>glichen ${esc(s.version.app)} <span class="note mono">glichen ${esc(s.version.lichen)}</span></dd>` : '';
   setHTML('about', ver);
   if (s.wallet) {
     setHTML('about', ver + `<dt>Bitcoin</dt><dd>block ${snap.height != null ? sats(snap.height) : '—'}</dd><dt>notes</dt><dd>${snap.notes.map(n => `note ${n.k} of ${sats(n.value)}`).join(', ') || 'none'}</dd><dt>wallet file</dt><dd class="mono">${esc(s.wallet)}</dd>`);

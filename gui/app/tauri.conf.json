@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "lichen grants",
+  "productName": "glichen",
   "version": "0.5.4",
   "identifier": "io.github.adamisz.lichengrants",
   "build": {
@@ -10,7 +10,7 @@
     "withGlobalTauri": true,
     "windows": [
       {
-        "title": "lichen grants",
+        "title": "glichen",
         "width": 1000,
         "height": 820
       }

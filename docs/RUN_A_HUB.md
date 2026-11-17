@@ -25,7 +25,7 @@ Linux or macOS, x86-64 or arm64, with Docker (Compose v2):
 - **Disk:** a few GB for Mutinynet, more for signet or testnet4 (the
   node keeps a `txindex`), and about 250 MB a contract for the garbled
   instances the hub keeps.
-- **Ports:** open the hub's (18310) to users. The node's RPC stays
+- **Ports:** open the hub's (18320) to users. The node's RPC stays
   inside the compose network.
 
 ## 1. Build
@@ -39,7 +39,7 @@ deploy/build.sh
 `build.sh` builds two images, from committed sources only: lichen's HEAD
 (and lichen-btc at the commit `Cargo.lock` pins).
 
-- **`lichen`:** the hub, the prover (`glichen-r0`, through
+- **`glichen`:** the hub, the prover (`glichen-r0`, through
   `glichen-hp-prover`), and the `glichen` wallet, for the smoke test.
 - **`lichen-bitcoind:<network>`:** the node.
   - For regtest, signet and testnet4: stock Bitcoin Core 31.1.
@@ -63,7 +63,7 @@ In `deploy/.env`:
 | `HUB_WALLET` | the node's wallet holding the hub's coins (`hub`) |
 | `HOSTILE` | trials on test networks only: the hub refuses every cooperative withdrawal and asserts a forged proof against every exit claim, true ones too, so that users challenge and win |
 | `REFUSE_FOLDS` | trials on test networks only: the hub refuses every cooperative withdrawal but asserts only against false claims |
-| `HUB_PORT` | the published port (18310) |
+| `HUB_PORT` | the published port (18320) |
 
 ## 3. Start
 
@@ -89,7 +89,7 @@ deploy/lichen.sh balance
 deploy/lichen.sh fund 10        # regtest: from the miner's coins
 ```
 
-Then give users the URL, `http://<this host>:18310`, and the issuer key
+Then give users the URL, `http://<this host>:18320`, and the issuer key
 from `info`, which their wallets pin at `init`.
 
 Wallets read the hub's offer, `GET /info`: its network and keys, its

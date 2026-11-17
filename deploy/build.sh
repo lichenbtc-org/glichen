@@ -2,7 +2,7 @@
 # Build the deployment's two images from committed sources
 # (deploy/context.sh):
 #   deploy/build.sh            (in a glichen checkout)
-# - lichen (LICHEN_IMAGE, lichen:latest by default): the hub, the
+# - glichen (LICHEN_IMAGE, glichen:latest by default): the hub, the
 #   wallet, the prover;
 # - lichen-bitcoind: the node for NETWORK (deploy/.env, or ENV_FILE),
 #   from a release tarball checked by SHA-256.
@@ -15,6 +15,6 @@ env_file="${ENV_FILE:-$here/.env}"
 # shellcheck disable=SC1090
 . "$env_file"
 make_context
-docker build -t "${LICHEN_IMAGE:-lichen:latest}" --build-arg "LICHEN_COMMIT=$lichen_commit" -f "$here/Dockerfile" "$ctx"
+docker build -t "${LICHEN_IMAGE:-glichen:latest}" --build-arg "LICHEN_COMMIT=$lichen_commit" -f "$here/Dockerfile" "$ctx"
 docker build -t "lichen-bitcoind:$NETWORK" --build-arg "NETWORK=$NETWORK" "$here/bitcoind"
-echo "== built ${LICHEN_IMAGE:-lichen:latest} and lichen-bitcoind:$NETWORK"
+echo "== built ${LICHEN_IMAGE:-glichen:latest} and lichen-bitcoind:$NETWORK"

@@ -11,7 +11,7 @@ the hub, in one Docker Compose project
 |---|---|
 | `.env.example` | the settings; copy to `.env` |
 | `docker-compose.yml` | the deployment: `bitcoind`, `hub`, and on regtest `miner` |
-| `Dockerfile`, `entry.sh` | the `lichen` image (the hub, `glichen-r0`, the wallet) and its roles: `key`, `hub` |
+| `Dockerfile`, `entry.sh` | the `glichen` image (the hub, `glichen-r0`, the wallet) and its roles: `key`, `hub` |
 | `bitcoind/` | the node's image (`lichen-bitcoind:<network>`), whose entry writes `bitcoin.conf` for the network |
 | `build.sh` | builds both images |
 | `context.sh` | a build context of committed sources (lichen's HEAD), for `build.sh` |

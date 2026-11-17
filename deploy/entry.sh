@@ -35,6 +35,9 @@ case "${1:-}" in
         wallet="${HUB_WALLET:-hub}"
         rpc / loadwallet "[\"$wallet\"]" >/dev/null
         rpc / createwallet "[\"$wallet\"]" >/dev/null
+        # the hub's prover (STATEMENT=hub-proves): glichen-r0 in this image,
+        # its Groth16 wrap in RISC Zero's image on the host's Docker
+        export LICHEN_R0=/usr/local/bin/glichen-r0 LICHEN_HP_PROVER=/usr/local/bin/glichen-hp-prover
         exec glichen-hub --network "$NETWORK" --listen 0.0.0.0:18310 \
             --rpc-url "$node" --cookie "$cookie" --chain-wallet "$wallet" --dir /hub \
             --statement "${STATEMENT:-hub-proves-mock}" --reserve-ppm "${RESERVE_PPM:-20000}" --fee-ppm "${FEE_PPM:-10000}" --max-liquidity "${MAX_LIQUIDITY:-10000000}" \

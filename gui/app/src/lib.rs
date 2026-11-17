@@ -44,5 +44,5 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![api])
         .run(tauri::generate_context!())
-        .expect("the lichen app");
+        .expect("the glichen app");
 }

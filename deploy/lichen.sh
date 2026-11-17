@@ -27,9 +27,9 @@ case "${1:-}" in
         ;;
     down) dc down ;;
     info)
-        echo "hub L2 key:    $(docker run --rm -e NETWORK="$NETWORK" -v "$data/hub:/hub" "${LICHEN_IMAGE:-lichen:latest}" key)"
+        echo "hub L2 key:    $(docker run --rm -e NETWORK="$NETWORK" -v "$data/hub:/hub" "${LICHEN_IMAGE:-glichen:latest}" key)"
         echo "pinned:        $(tr -d ' \n' < "$data/hub/deployment.json" 2>/dev/null || echo "nothing yet (the hub pins the deployment on its first start)")"
-        echo "hub:           $(curl -fsS "http://127.0.0.1:${HUB_PORT:-18310}/info" 2>/dev/null || echo '(no answer yet: deploy/lichen.sh logs hub)')"
+        echo "hub:           $(curl -fsS "http://127.0.0.1:${HUB_PORT:-18320}/info" 2>/dev/null || echo '(no answer yet: deploy/lichen.sh logs hub)')"
         cli getblockchaininfo | grep -E '"(chain|blocks|headers|initialblockdownload)"'
         ;;
     address) cli -rpcwallet="${2:-hub}" getnewaddress ;;

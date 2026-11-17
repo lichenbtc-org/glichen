@@ -1,9 +1,9 @@
-# A lichen deployment for NETWORK (deploy/.env): the node and the hub,
+# A glichen deployment for NETWORK (deploy/.env): the node and the hub,
 # which keeps the grants L2's notes itself (no sequencer); on regtest a
 # miner too (COMPOSE_PROFILES=regtest).
 #   deploy/build.sh && deploy/lichen.sh up
 # Data: deploy/state/<network>/.
-name: lichen-${NETWORK:?set NETWORK in deploy/.env}
+name: glichen-${NETWORK:?set NETWORK in deploy/.env}
 
 # Each service's log rotated, 10 MB a file and three kept: the node logs
 # every block, and Docker keeps a container's output whole otherwise
@@ -42,7 +42,7 @@ services:
 
   hub:
     logging: *logging
-    image: ${LICHEN_IMAGE:-lichen:latest}
+    image: ${LICHEN_IMAGE:-glichen:latest}
     command: ["hub"]
     environment:
       NETWORK: ${NETWORK}
@@ -64,7 +64,7 @@ services:
       - ${R0WORK}:${R0WORK}
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "${HUB_PORT:-18310}:18310"
+      - "${HUB_PORT:-18320}:18310"
     depends_on:
       bitcoind: { condition: service_healthy }
     restart: unless-stopped

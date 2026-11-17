@@ -1,6 +1,6 @@
 openapi: 3.1.0
 info:
-  title: lichen grants hub API
+  title: glichen hub API
   version: grants-0.5.3
   summary: The HTTP API a grants L2 hub serves to wallets.
   description: |
@@ -74,7 +74,7 @@ info:
 servers:
   - url: https://thimbly.org/lichen/grants/hub
     description: the Mutinynet deployment (lichen-hub)
-  - url: http://127.0.0.1:18310
+  - url: http://127.0.0.1:18320
     description: a local hub (the devstack's is on 28310)
 tags:
   - name: hub
