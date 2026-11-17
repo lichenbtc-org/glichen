@@ -1,16 +1,21 @@
 openapi: 3.1.0
 info:
   title: glichen hub API
-  version: grants-0.5.3
-  summary: The HTTP API a grants L2 hub serves to wallets.
+  version: grants-0.5.4
+  summary: The HTTP API a glichen hub (the grants L2) serves to wallets.
   description: |
-    The hub of lichen's grants L2 (branch `grants`, design
+    The hub of glichen, the grants L2 on lichen (design
     papers/lichen-grants.pdf): it opens contracts with users, keeps the
     book of accounts (one note per account), grants and records payments,
-    and folds withdrawals. This file specifies the wire format as the hub
-    at `grants-v0.5.3` serves it (`crates/hub/src/lib.rs`, `route`), and
-    was checked against traffic captured between the CLI wallet and a
-    devstack hub (an opening, payments both ways, a cancel, withdrawals).
+    and folds withdrawals. The contract's routes (the opening, the
+    withdrawal, `/info`) are lichen's (`lichen_hub`), with the L2's part
+    of each message in its `l2` field; the payments' are glichen's
+    (`crates/hub/src/lib.rs`, `route`). This file specifies the wire
+    format as the hub at `grants-v0.5.4` serves it. It was checked
+    against traffic captured between a wallet and a devstack hub: at
+    grants-v0.5.3 an opening, payments both ways, a cancel and
+    withdrawals; at grants-v0.5.4 (after the repo split, which moved the
+    L2's fields under `l2`) an opening and a withdrawal again.
 
     **Conventions.**
     - Every body is JSON (`Content-Type: application/json`) except an
@@ -27,7 +32,7 @@ info:
     - An account's owner is a 32-byte x-only secp256k1 key, as 64 hex
       characters in paths and payments. People see it as an L2 address,
       `tlc1…` (bech32m: a version byte, the key, and a 4-byte tag of the
-      hub's issuer key; `lichen_notes::address`), which a wallet decodes to
+      hub's issuer key; `glichen_notes::address`), which a wallet decodes to
       the key before calling the hub.
     - Signatures are BIP340 Schnorr, 64 bytes; a transaction signature
       with a sighash byte other than the default is 65.
@@ -72,8 +77,6 @@ info:
   license:
     name: MIT
 servers:
-  - url: https://thimbly.org/lichen/grants/hub
-    description: the Mutinynet deployment (lichen-hub)
   - url: http://127.0.0.1:18320
     description: a local hub (the devstack's is on 28310)
 tags:
@@ -86,7 +89,7 @@ paths:
     get:
       tags: [hub]
       operationId: info
-      summary: The hub's terms, deployment and build.
+      summary: The hub's terms, its issuer and guest, and its build.
       responses:
         '200':
           description: The hub's terms.
@@ -488,17 +491,9 @@ components:
       enum: [regtest, mutinynet, signet, testnet4]
     Info:
       type: object
-      required: [network, deployment, statement, reserve_ppm, fee_ppm, max_liquidity, duration]
+      required: [network, statement, reserve_ppm, fee_ppm, max_liquidity, duration, l2]
       properties:
         network: { $ref: '#/components/schemas/Network' }
-        deployment:
-          description: The deployment's keys; in the grants L2 both are the issuer's, which signs every note.
-          type: object
-          required: [sequencer, hub]
-          properties:
-            sequencer: { $ref: '#/components/schemas/Hex32' }
-            hub: { $ref: '#/components/schemas/Hex32' }
-            seal: { description: Unused in the grants L2. }
         statement:
           description: The dispute's statement, which the wallet must run too.
           type: string
@@ -511,14 +506,13 @@ components:
         commit:
           description: The build's `git describe`, when the build was told.
           type: [string, 'null']
-        guests:
-          description: The RISC Zero image ids the hub proves and checks with; a wallet refuses a hub whose guests aren't its own.
-          type: [object, 'null']
-          required: [spend, chain, hp]
+        l2:
+          description: The L2's part.
+          type: object
+          required: [issuer, hp]
           properties:
-            spend: { $ref: '#/components/schemas/Hex32' }
-            chain: { $ref: '#/components/schemas/Hex32' }
-            hp: { $ref: '#/components/schemas/Hex32' }
+            issuer: { $ref: '#/components/schemas/Hex32', description: "The issuer's x-only key, which signs every note; a wallet pins it." }
+            hp: { $ref: '#/components/schemas/Hex32', description: "The image id of the guest the hub proves with; a wallet refuses a hub whose guest isn't its own." }
     DepositRequest:
       type: object
       required: [alice]
@@ -540,25 +534,34 @@ components:
         timeout: { $ref: '#/components/schemas/U16', description: "Blocks after the deposit confirms until her refund matures." }
     HpSetupRequest:
       type: object
-      required: [cid, deposit, unit, owner, v0]
+      required: [cid, deposit, unit, l2]
       properties:
         cid: { $ref: '#/components/schemas/U32' }
         deposit: { $ref: '#/components/schemas/OutPoint' }
         unit: { $ref: '#/components/schemas/Sats', description: "The contract's unit u (sats per unit of b)." }
-        owner: { $ref: '#/components/schemas/Hex32' }
+        l2: { $ref: '#/components/schemas/Terms', description: "The statement's terms she asks for: issuer null (the hub adds its own)." }
+    Terms:
+      description: "The statement's terms (`glichen_proto::SetupTerms`): the contract's owner, the mint's value and the issuer, all bound by the journal."
+      type: object
+      required: [owner, v0]
+      properties:
+        owner: { $ref: '#/components/schemas/Hex32', description: "Her L2 key, the contract's owner." }
         v0: { $ref: '#/components/schemas/Sats', description: "The mint's value, note 0's." }
+        issuer:
+          description: "The issuer's x-only key: null as she asks, the hub's in its setup."
+          oneOf:
+            - $ref: '#/components/schemas/Hex32'
+            - type: 'null'
     HpSetup:
       type: object
-      required: [cid, n, m, unit, deposit, owner, v0, issuer, lamport, adaptor]
+      required: [cid, n, m, unit, deposit, lamport, adaptor, l2]
       properties:
         cid: { $ref: '#/components/schemas/U32' }
         n: { $ref: '#/components/schemas/U32', description: Instances she garbles. }
         m: { $ref: '#/components/schemas/U32', description: Instances the hub keeps. }
         unit: { $ref: '#/components/schemas/Sats' }
         deposit: { $ref: '#/components/schemas/OutPoint' }
-        owner: { $ref: '#/components/schemas/Hex32' }
-        v0: { $ref: '#/components/schemas/Sats' }
-        issuer: { $ref: '#/components/schemas/Hex32', description: "The issuer's x-only key." }
+        l2: { $ref: '#/components/schemas/Terms', description: "The statement's terms, the hub's issuer added." }
         lamport:
           description: "The hub's Lamport key for π1: per digit (254), a HASH160 lock per value (4)."
           type: array
@@ -669,14 +672,25 @@ components:
           allOf: [{ $ref: '#/components/schemas/Coin' }]
         fee_spk: { $ref: '#/components/schemas/HexBytes', description: 'Where the funding pays her fee budget.' }
     Windows:
-      description: "The dispute's windows, in blocks: w_h for the hub's moves (correct, assert), w_a for her ack, delta2 for her challenge, delta1 for the hub's answer."
+      description: "BABE's windows, in blocks: delta2 for her challenge, delta1 for the hub's answer."
       type: object
-      required: [w_h, w_a, delta2, delta1]
+      required: [delta2, delta1]
       properties:
-        w_h: { $ref: '#/components/schemas/U16' }
-        w_a: { $ref: '#/components/schemas/U16' }
         delta2: { $ref: '#/components/schemas/U16' }
         delta1: { $ref: '#/components/schemas/U16' }
+    OfferKeys:
+      description: "The L2's part of the dispute in the offer: the hub's one-time keys, and the front's windows in blocks (w_h for the hub's moves, correct and assert; w_a for her ack)."
+      type: object
+      required: [corr_key, u_key, windows]
+      properties:
+        corr_key: { $ref: '#/components/schemas/WotsPublic', description: "The hub's one-time key for b_corr (HASH160 chains)." }
+        u_key: { $ref: '#/components/schemas/WotsPublic', description: "The hub's one-time key for U." }
+        windows:
+          type: object
+          required: [w_h, w_a]
+          properties:
+            w_h: { $ref: '#/components/schemas/U16' }
+            w_a: { $ref: '#/components/schemas/U16' }
     AdaptorPresig:
       description: "An adaptor pre-signature on a transaction: the final nonce R' + T (x-only), R', s'."
       type: object
@@ -691,15 +705,14 @@ components:
       additionalProperties: { $ref: '#/components/schemas/TxSig' }
     OpenOffer:
       type: object
-      required: [cid, t_close, reserve_hub, hub, hp_windows, corr_key, u_key, hp_presigs, funding, hub_coins, hub_sigs, mint_point]
+      required: [cid, t_close, reserve_hub, hub, hp_windows, hp_presigs, l2, funding, hub_coins, hub_sigs, mint_point]
       properties:
         cid: { $ref: '#/components/schemas/U32' }
         t_close: { $ref: '#/components/schemas/U32', description: "The contract's T_close (a height)." }
         reserve_hub: { $ref: '#/components/schemas/Sats' }
         hub: { $ref: '#/components/schemas/PartyPubKeys' }
         hp_windows: { $ref: '#/components/schemas/Windows' }
-        corr_key: { $ref: '#/components/schemas/WotsPublic', description: "The hub's one-time key for b_corr (HASH160 chains)." }
-        u_key: { $ref: '#/components/schemas/WotsPublic', description: "The hub's one-time key for U." }
+        l2: { $ref: '#/components/schemas/OfferKeys' }
         hp_presigs:
           description: "The hub's adaptor pre-signatures on challenge_assert: per digit, one per value."
           type: array
@@ -715,8 +728,8 @@ components:
           items: { $ref: '#/components/schemas/Coin' }
         hub_sigs: { $ref: '#/components/schemas/GraphSigs' }
         mint_point: { $ref: '#/components/schemas/Point', description: "T, the funding's adaptor point: her signature on the deposit's spend is locked to it." }
-        checkpoint:
-          description: Unused in the grants L2 (an anchored deployment's).
+        l2_offer:
+          description: The L2's part of the offer beside the dispute's; glichen's is null.
           type: 'null'
     Accept:
       type: object
