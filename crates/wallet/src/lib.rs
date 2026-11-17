@@ -24,7 +24,7 @@ use lichen_wallet::{FrontEnd, Quote, SweepIn, Wallet, WalletL2};
 use serde::{Deserialize, Serialize};
 
 pub use exit::ExitPlan;
-pub use lichen_wallet::{dispute, engine, hub_call, hub_info, Ask, Deposit, Held, Opening, PAYOUT_FEERATE};
+pub use lichen_wallet::{dispute, engine, hub_call, hub_info, send_from, Ask, Deposit, Held, Opening, PAYOUT_FEERATE};
 pub use notes::{Acct, Payments, Pending, Step};
 
 /// The hub's statement guest's image id, hex (glichen's build,
@@ -33,6 +33,12 @@ pub const IMAGE_ID: &str = include_str!("../../../r0/guests/hp.id");
 
 /// A glichen wallet.
 pub type GrantsWallet = Wallet<Grants>;
+
+/// A hub's `GET /info` checked for this wallet (a glichen hub of our
+/// version: the same statement guest): its issuer.
+pub fn check_hub(info: &Info) -> Result<Hash> {
+    Ok(Grants::create(info)?.issuer)
+}
 
 /// The grants L2 in the wallet file: the hub's issuer (its deployment,
 /// pinned when the wallet was made) and our accounts, by owner (hex): each
