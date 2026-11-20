@@ -67,6 +67,13 @@ fn hp_input(input: &str) -> Result<Hp> {
     Ok(Hp { bytes, journal: journal.to_vec() })
 }
 
+/// Bytes as the guest reads them: little-endian words, zero-padded.
+fn words(bytes: &[u8]) -> Vec<u32> {
+    let mut padded = bytes.to_vec();
+    padded.resize(bytes.len().div_ceil(4) * 4, 0);
+    padded.chunks(4).map(|c| u32::from_le_bytes(c.try_into().unwrap())).collect()
+}
+
 /// Prove the hub's statement (or, `execute_only`, run it): the succinct
 /// receipt, checked.
 fn prove_hp(hp: Hp, execute_only: bool) -> Result<Option<Receipt>> {
